@@ -11,14 +11,14 @@
 
 `slurp` does not require installation in the traditional sense, since it's just a standalone shell script. Therefore, you have several options for integrating it into your system:
 
- - **Direct Download:**
+ - **Direct Download:** <br>
    Download the `slurp` file from the [latest release](https://github.com/Kira-NT/slurp/releases/latest), place it in a directory that is in your system's `PATH`, grant it executable permissions, and run it:
    ```sh
    chmod +x slurp
    slurp <input-directory> [options]
    ```
 
- - **Clone and Run:**
+ - **Clone and Run:** <br>
    Clone the repository and run `slurp.sh` directly from the working tree:
    ```sh
    git clone https://github.com/Kira-NT/slurp
@@ -26,7 +26,7 @@
    ./slurp.sh <input-directory> [options]
    ```
 
- - **Run Without Saving:**
+ - **Run Without Saving:** <br>
    If you only need `slurp` for a single task, you can run it without permanently saving the script by using the following snippet:
    ```sh
    curl -Ls https://github.com/Kira-NT/slurp/blob/HEAD/slurp.sh?raw=true | bash -s -- <input-directory> [options]

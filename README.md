@@ -39,18 +39,24 @@ Note, `slurp` and the binaries it produces depend on [GNU `coreutils`](https://w
 ## Usage
 
 ```
-Usage: slurp <input-directory> [options]
+Usage: slurp [-r <executable>] [-o <output-file>] [--] <input-directory>
+       slurp --unpack [-o <output-directory>] [--] <input-file>
 
 Slurp an executable and its satellite files into a single binary.
 
 Examples:
-  slurp ./build --run ./build/autorun.sh --output ./app
-  slurp ./bin --run ./bin/app
-  slurp ./release
+  slurp ./bin/ --run ./bin/autorun.sh --output ./app
+  slurp ./bin/ --output ./app
+  slurp ./bin/
+  slurp ./app --unpack --output ./app.slurp/
+  slurp ./app --unpack
 
 Arguments:
   <input-directory>
       The directory containing the files and subdirectories to be slurped.
+
+  <input-file>
+      The binary file to be unslurped.
 
 Options:
   -h, --help
@@ -73,6 +79,13 @@ Options:
         - The main executable's basename is used, unless it is "autorun".
         - If the main executable's basename is "autorun", the name of the input directory is used.
         - A numeric suffix (e.g., ".1", ".2", etc.) is appended if the chosen filename is already in use.
+
+  -o, --output <output-directory>
+      Specifies the name of the output directory.
+      If omitted, defaults to "<input-file>.slurp".
+
+  -u, --unpack, --unslurp
+      Unpack a binary created by slurp.
 ```
 
 ----

@@ -21,18 +21,24 @@ version() {
 #   Writes the help message to stdout.
 #################################################
 help() {
-  echo "Usage: ${0} <input-directory> [options]"
+  echo "Usage: ${0} [-r <executable>] [-o <output-file>] [--] <input-directory>"
+  echo "       ${0} --unpack [-o <output-directory>] [--] <input-file>"
   echo
   echo "Slurp an executable and its satellite files into a single binary."
   echo
   echo "Examples:"
-  echo "  ${0} ./build --run ./build/autorun.sh --output ./app"
-  echo "  ${0} ./bin --run ./bin/app"
-  echo "  ${0} ./release"
+  echo "  ${0} ./bin/ --run ./bin/autorun.sh --output ./app"
+  echo "  ${0} ./bin/ --output ./app"
+  echo "  ${0} ./bin/"
+  echo "  ${0} ./app --unpack --output ./app.slurp/"
+  echo "  ${0} ./app --unpack"
   echo
   echo "Arguments:"
   echo "  <input-directory>"
   echo "      The directory containing the files and subdirectories to be slurped."
+  echo
+  echo "  <input-file>"
+  echo "      The binary file to be unslurped."
   echo
   echo "Options:"
   echo "  -h, --help"
@@ -55,6 +61,13 @@ help() {
   echo "        - The main executable's basename is used, unless it is \"autorun\"."
   echo "        - If the main executable's basename is \"autorun\", the name of the input directory is used."
   echo "        - A numeric suffix (e.g., \".1\", \".2\", etc.) is appended if the chosen filename is already in use."
+  echo
+  echo "  -o, --output <output-directory>"
+  echo "      Specifies the name of the output directory."
+  echo "      If omitted, defaults to \"<input-file>.slurp\"."
+  echo
+  echo "  -u, --unpack, --unslurp"
+  echo "      Unpack a binary created by slurp."
 }
 
 #################################################

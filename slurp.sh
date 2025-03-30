@@ -169,8 +169,8 @@ get_default_output_filename() {
 create_preamble() {
   local exec_filename="${1}"
   local byte_count=${2:-"$(create_preamble "${exec_filename}" 0 | wc -c)"}
-  [ -z "${2}" ] && byte_count=$((${byte_count} + ${#byte_count} - 1))
   local archive_start=$((${byte_count} + 1))
+  [ -z "${2}" ] && archive_start=$((${archive_start} + ${#archive_start} - 1))
 
   echo '#!/bin/sh'
   echo 'TEMP_DIR=$(mktemp -d)'

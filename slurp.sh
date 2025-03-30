@@ -173,6 +173,7 @@ create_preamble() {
   [ -z "${2}" ] && archive_start=$((${archive_start} + ${#archive_start} - 1))
 
   echo '#!/bin/sh'
+  echo '#?slurp'
   echo 'TEMP_DIR=$(mktemp -d)'
   echo 'trap '\''rm -rf "$TEMP_DIR"; trap - EXIT; exit'\'' EXIT INT HUP'
   echo 'tail -c +'${archive_start}' "$0" | tar -xzC "$TEMP_DIR" && "$TEMP_DIR/'"${exec_filename}"'" "$@"'
@@ -228,6 +229,41 @@ pack_into_file() {
 }
 
 #################################################
+# Checks if a file is a valid slurp binary.
+# Arguments:
+#   $1. The file to check.
+# Returns:
+#   0 if the file is a valid slurp binary;
+#   otherwise, a non-zero status.
+#################################################
+is_slurp_file() {
+  local expected_header="#!/bin/sh #?slurp"
+  local header=$(head -c "$(printf '%s' "${expected_header}" | wc -c)" "${1}" 2> /dev/null | sed 'N;s/\n/ /')
+  [ "${header}" = "${expected_header}" ]
+}
+
+#################################################
+# Extracts contents of a slurp binary
+# into a directory.
+# Arguments:
+#   $1. The input file.
+#   $2. The output directory (optional).
+# Returns:
+#   0 if the operation succeeds;
+#   otherwise, a non-zero status.
+#################################################
+unpack() {
+  local input_filename="${1}"
+  [ -e "${input_filename}" ] || error "${input_filename}: Cannot open: No such file or directory" || return
+  is_slurp_file "${input_filename}" || error "${input_filename}: Is not a file produced by slurp" || return
+
+  local output_dirname="${2:-"$(basename "${input_filename}").slurp"}"
+  [ -d "${output_dirname}" ] || mkdir "${output_dirname}" || return
+
+  sed '1,/^exit$/ d' "${input_filename}" | tar -xzC "${output_dirname}"
+}
+
+#################################################
 # The main entry point for the script.
 # Arguments:
 #   ... A list of the command line arguments.
@@ -236,9 +272,10 @@ pack_into_file() {
 #   otherwise, a non-zero status.
 #################################################
 main() {
-  local input_dirname=""
+  local input=""
+  local output=""
   local exec_filename=""
-  local output_filename=""
+  local command="pack_into_file"
 
   # Parse the arguments and options.
   while [ $# -gt 0 ]; do
@@ -246,19 +283,20 @@ main() {
       -h|--help) help; exit 0 ;;
       -v|--version) version; exit 0 ;;
       -r|--run) exec_filename="${2}"; shift ;;
-      -o|--output) output_filename="${2}"; shift ;;
+      -o|--output) output="${2}"; shift ;;
+      -u|--unpack|--unslurp) command="unpack" ;;
       --) shift; break ;;
       -*) fatal_error "invalid option: '${1}'" ;;
-      *) [ -z "${input_dirname}" ] && input_dirname="${1}" || fatal_error "invalid argument: '${1}'" ;;
+      *) [ -z "${input}" ] && input="${1}" || fatal_error "invalid argument: '${1}'" ;;
     esac
     shift 2> /dev/null || fatal_error "missing operand"
   done
   while [ $# -gt 0 ]; do
-    [ -z "${input_dirname}" ] && input_dirname="${1}" || fatal_error "invalid argument: '${1}'"
+    [ -z "${input}" ] && input="${1}" || fatal_error "invalid argument: '${1}'"
     shift
   done
 
-  pack_into_file "${input_dirname}" "${output_filename}" "${exec_filename}"
+  "${command}" "${input}" "${output}" "${exec_filename}"
 }
 
 main "${@}"
